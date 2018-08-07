@@ -1,11 +1,16 @@
 import { html } from "../vendor/lit-html/lib/lit-extended.js";
 import { LitElement } from "../vendor/lit-element/lit-element.js";
-import DatSelectArchive from "../elements/dat-select-archive.js";
-import DatChatMessage from "../elements/dat-chat-message.js";
+import DatSelectArchive from "./dat-select-archive.js";
+import DatChatMessage from "./dat-chat-message.js";
+import DatChatNewMessage from "./dat-chat-new-message.js";
 import { uuidv4 } from "../utils.js";
 
 customElements.define("dat-select-archive", DatSelectArchive.withProperties());
 customElements.define("dat-chat-message", DatChatMessage.withProperties());
+customElements.define(
+  "dat-chat-new-message",
+  DatChatNewMessage.withProperties()
+);
 
 const DatArchive = window.DatArchive;
 
@@ -54,8 +59,6 @@ export default class DatChat extends LitElement {
     this.invalidate();
 
     setTimeout(() => {
-      this.$("#new-message-text").focus();
-
       const messagesContainer = this.$(".messages-container");
 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -63,17 +66,9 @@ export default class DatChat extends LitElement {
   }
 
   async handleNewMessage(event) {
-    event.preventDefault();
-
-    const text = this.$("#new-message-text").value;
-
-    if (text.length < 1) {
-      return false;
-    }
-
-    this.$("#new-message-text").value = "";
-
     const id = uuidv4();
+
+    const text = event.detail.text;
 
     const url = `${this.archive.url}/messages/${id}.json`;
 
@@ -105,8 +100,6 @@ export default class DatChat extends LitElement {
     this.invalidate();
 
     setTimeout(() => {
-      this.$("#new-message-text").focus();
-
       const messagesContainer = this.$(".messages-container");
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }, 50);
@@ -129,10 +122,6 @@ export default class DatChat extends LitElement {
           display: flex;
           flex-direction: column;
         }
-        form {
-          margin: 0;
-          padding: 0;
-        }
         main {
           flex: 1;
           display: flex;
@@ -146,33 +135,6 @@ export default class DatChat extends LitElement {
           list-style: none;
           padding: 4px 0;
           margin: 0;
-        }
-        #new-message-form {
-          display: flex;
-          padding: 10px;
-        }
-        #new-message-text {
-          flex: 1;
-          padding: 10px;
-          font-size: 0.92rem;
-          box-sizing: content-box;
-          border-radius: 6px;
-          border: 2px solid #b2b2b3;
-        }
-        #new-message-text:focus {
-          outline: none;
-          border-color: #398ddc;
-        }
-        #new-message-text::placeholder {
-          color: #a0a0a0;
-        }
-        .screenreader-only {
-          position: absolute;
-          left: -10000px;
-          top: auto;
-          width: 1px;
-          height: 1px;
-          overflow: hidden;
         }
       </style>
       
@@ -189,10 +151,9 @@ export default class DatChat extends LitElement {
           </ul>
         </div>
 
-        <form id="new-message-form" on-submit=${this.handleNewMessage}>
-          <input placeholder="New message" type="text" id="new-message-text" autofocus />
-          <button class="screenreader-only" type="submit">Add message</button>
-        </form>
-    </main>`;
+        <dat-chat-new-message on-new-message=${
+          this.handleNewMessage
+        }></dat-chat-new-message>
+      </main>`;
   }
 }
