@@ -124,6 +124,13 @@ export default class DatChat extends LitElement {
           flex: 1;
           display: flex;
           flex-direction: column;
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          right: 0;
+          display: flex;
+          flex-direction: column;
         }
         form {
           margin: 0;

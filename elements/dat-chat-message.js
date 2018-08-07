@@ -2,22 +2,8 @@ import { LitElement, html } from "../vendor/lit-element/lit-element.js";
 import { userColors } from "../utils.js";
 
 export default class DatSelectArchive extends LitElement {
-  constructor() {
-    super();
-
-    // this.message = null;
-
-    setTimeout(() => {
-      this.invalidate();
-    }, 1000);
-  }
-
   render() {
     const message = this.message;
-
-    if (this.message == null) {
-      return html`<div>Loading</div>`;
-    }
 
     const dateCreated = new Date(message.dateCreated);
 
