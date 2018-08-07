@@ -100,7 +100,6 @@ export default class DatChat extends LitElement {
       JSON.stringify(message, null, 2)
     );
 
-    // should be unnecessary
     this.messages.push(message);
 
     this.invalidate();
@@ -122,8 +121,6 @@ export default class DatChat extends LitElement {
       <style>
         :host {
           flex: 1;
-          display: flex;
-          flex-direction: column;
           position: absolute;
           left: 0;
           top: 0;
