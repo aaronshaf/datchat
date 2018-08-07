@@ -22,11 +22,14 @@
 </head>
 
 <body>
-  <div id="app" />
-
   <script type="module">
-    import './index.js'
+    import DatChat from "./elements/dat-chat.js";
+    customElements.define("dat-chat", DatChat.withProperties());
   </script>
+
+  <div id="app">
+    <dat-chat></dat-chat>
+  </div>
 </body>
 
 </html>

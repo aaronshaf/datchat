@@ -58,7 +58,7 @@ export default class DatSelectArchive extends LitElement {
         <span><strong style="color: ${userColors[0]}">${
       message.sender.name
     }</strong></span>
-          <span class="message-text">${message.text}</span>
+        <span class="message-text">${message.text}</span>
       </div>
     </li>`;
   }
