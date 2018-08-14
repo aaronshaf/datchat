@@ -8,13 +8,17 @@
       margin: 0;
       font-family: sans-serif;
     }
+
+    *:not(:defined) {
+      visibility: hidden;
+    }
   </style>
 </head>
 
 <body>
   <script type="module">
-    import DatChat from "./elements/dat-chat.js";
-    customElements.define("dat-chat", DatChat.withProperties());
+    import DatChat from "./elements/app.js";
+    customElements.define("dat-chat", DatChat);
   </script>
 
   <dat-chat></dat-chat>
