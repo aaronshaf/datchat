@@ -2,10 +2,14 @@ import totes from "../vendor/totes/index.js";
 import { html, render } from "../vendor/lit-html/lib/lit-extended.js";
 import ChatMessage from "./message.js";
 import ChatNewMessage from "./new-message.js";
-import { uuidv4 } from "../utils.js";
+import DatRoute from "./route.js";
+import { uuidv4, listenToPushState } from "../utils.js";
+
+listenToPushState();
 
 customElements.define("dat-chat-message", ChatMessage);
 customElements.define("dat-chat-new-message", ChatNewMessage);
+customElements.define("dat-route", DatRoute);
 
 const DatArchive = window.DatArchive;
 
@@ -20,7 +24,7 @@ const styles = html`<style>
   display: flex;
   flex-direction: column;
 }
-main {
+main, .main {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -77,6 +81,10 @@ export default class DatChat extends Component {
       if (archive != null) {
         this.setState({ archive, profileUrl }, this.handleArchiveLoad);
       }
+    }
+
+    if (window.location.pathname === "/") {
+      setTimeout(window.history.pushState({}, "", "/channels/general"), 0);
     }
   }
 
@@ -190,20 +198,21 @@ export default class DatChat extends Component {
               }>Logout</button></div>`
             : html`<button on-click=${
                 this.handleCreateProfile
-              }>Create profile</button>`
+              }>Select profile</button>`
         }
       </header>
   
-      <main>
+      <dat-route class="main" path="/channels/general">
         <div class="messages-container">
           <ul class="messages">
             ${messages}
           </ul>
         </div>
 
-        <dat-chat-new-message on-new-message=${
-          this.handleNewMessage
-        }></dat-chat-new-message>
-      </main>`;
+        ${this.state.profile &&
+          html`<dat-chat-new-message on-new-message=${
+            this.handleNewMessage
+          }></dat-chat-new-message>`}
+      </dat-route>`;
   }
 }

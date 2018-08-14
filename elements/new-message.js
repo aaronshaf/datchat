@@ -4,6 +4,7 @@ import { html, render } from "../vendor/lit-html/lib/lit-extended.js";
 const styles = html`<style>
 :host {
   padding: 10px;
+  display: block;
 }
 form {
   margin: 0;
