@@ -60,7 +60,13 @@ export default class DatRoute extends Component {
 
   render() {
     if (this.state.isMatched) {
-      return html`<slot></slot>`;
+      return html`<style>
+        :host {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+      </style><slot></slot>`;
     } else {
       return html`<template></template>`;
     }

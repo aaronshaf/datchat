@@ -46,13 +46,13 @@ export const userColors = shuffle([
   "#2a4858"
 ]);
 
+// https://stackoverflow.com/a/25673911
 export const listenToPushState = () => {
-  // https://stackoverflow.com/a/25673911
-  var _wr = function(type) {
-    var orig = history[type];
+  const _wr = type => {
+    const orig = history[type];
     return function() {
-      var rv = orig.apply(this, arguments);
-      var e = new Event(type);
+      const rv = orig.apply(this, arguments);
+      const e = new Event(type);
       e.arguments = arguments;
       window.dispatchEvent(e);
       return rv;

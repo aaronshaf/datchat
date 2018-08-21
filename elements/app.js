@@ -1,15 +1,22 @@
 import totes from "../vendor/totes/index.js";
 import { html, render } from "../vendor/lit-html/lib/lit-extended.js";
+import mkdirp from "../vendor/mkdirp/index.js";
 import ChatMessage from "./message.js";
 import ChatNewMessage from "./new-message.js";
 import DatRoute from "./route.js";
+import DatRoute2 from "./route2.js";
+import DatRouter from "./router.js";
+import DatProfile from "./profile.js";
 import { uuidv4, listenToPushState } from "../utils.js";
 
 listenToPushState();
 
 customElements.define("dat-chat-message", ChatMessage);
 customElements.define("dat-chat-new-message", ChatNewMessage);
+customElements.define("dat-profile", DatProfile);
 customElements.define("dat-route", DatRoute);
+customElements.define("dat-route2", DatRoute2);
+customElements.define("dat-router", DatRouter);
 
 const DatArchive = window.DatArchive;
 
@@ -21,11 +28,6 @@ const styles = html`<style>
   top: 0;
   bottom: 0;
   right: 0;
-  display: flex;
-  flex-direction: column;
-}
-main, .main {
-  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -67,8 +69,10 @@ export default class DatChat extends Component {
 
     this.handleArchiveLoad = this.handleArchiveLoad.bind(this);
     this.handleNewMessage = this.handleNewMessage.bind(this);
-    this.handleCreateProfile = this.handleCreateProfile.bind(this);
+    this.handleSelectProfile = this.handleSelectProfile.bind(this);
+    this.handleFollow = this.handleFollow.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
+    this.watchFollows = this.watchFollows.bind(this);
   }
 
   async componentDidMount() {
@@ -88,11 +92,11 @@ export default class DatChat extends Component {
     }
   }
 
-  async handleCreateProfile() {
+  async handleSelectProfile() {
     const archive = await DatArchive.selectArchive({
       title: "Select an archive to use as your user profile",
       buttonLabel: "Select profile",
-      filters: { isOwner: true }
+      filters: { isOwner: true, type: "dat-chat-user-profile" }
     });
 
     localStorage.userUrl = archive.url;
@@ -102,23 +106,58 @@ export default class DatChat extends Component {
     );
   }
 
+  async handleFollow() {
+    const profileFile = await this.state.archive.readFile("/profile.json");
+
+    const profile = JSON.parse(profileFile);
+
+    const follow = window.prompt("Paste a Dat URL");
+
+    if (follow == null) {
+      return;
+    }
+
+    // TODO: resolve
+
+    profile.follows = [].concat(profile.profile || [], follow);
+
+    await this.state.archive.writeFile(
+      "/profile.json",
+      JSON.stringify(profile),
+      "utf8"
+    );
+  }
+
   handleLogout() {
     delete localStorage.userUrl;
-    this.setState({ archive: null, messages: [], profileUrl: null });
+    this.setState({ archive: null, profileUrl: null });
   }
 
   async handleArchiveLoad() {
     if (this.state.archive === null) {
-      this.setState({
-        messages: []
-      });
-
       return;
     }
 
-    const profileFile = await this.state.archive.readFile("/profile.json");
+    let profileFile;
+    try {
+      profileFile = await this.state.archive.readFile("/profile.json");
+    } catch (err) {
+      const name = window.prompt("What is your name?");
+      profileFile = await this.state.archive.writeFile(
+        "/profile.json",
+        JSON.stringify({
+          name,
+          follows: []
+        }),
+        "utf8"
+      );
+    }
 
-    this.setState({ profile: JSON.parse(profileFile) });
+    const profile = JSON.parse(profileFile);
+
+    this.setState({ profile });
+
+    await mkdirp("/messages", this.state.archive);
 
     const messageFiles = await this.state.archive.readdir("/messages");
 
@@ -134,10 +173,65 @@ export default class DatChat extends Component {
       messages.push(message);
     }
 
-    this.setState({ messages }, async () => {
-      const messagesContainer = this.$(".messages-container");
-      await true;
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    this.setState(
+      { messages: messages.slice().sort(sortMessage) },
+      async () => {
+        const messagesContainer = this.$(".messages-container");
+        await true;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    );
+
+    this.watchFollows();
+  }
+
+  async watchFollows() {
+    const profileFile = await this.state.archive.readFile("/profile.json");
+
+    const profile = JSON.parse(profileFile);
+
+    (profile.follows || []).forEach(async followedDatUrl => {
+      const followedArchive = new DatArchive(followedDatUrl);
+      const history = await followedArchive.history({
+        start: 0,
+        end: 50,
+        reverse: true
+      });
+
+      // TODO: be smart about deletes/puts
+      const messagePaths = history
+        .filter(message => message.path.startsWith("/messages/"))
+        .filter(message => message.type === "put")
+        .reduce((messages, message) => {
+          return [].concat(
+            messages,
+            messages.includes(message.path) ? [] : message
+          );
+        }, [])
+        .map(message => message.path);
+
+      messagePaths.forEach(async path => {
+        const messageFile = await followedArchive.readFile(path, "utf8");
+
+        if (messageFile == null) {
+          return;
+        }
+
+        const message = JSON.parse(messageFile);
+
+        message.sender.url = followedArchive.url;
+
+        this.setState(
+          {
+            messages: [].concat(this.state.messages, message).sort(sortMessage)
+          },
+          async () => {
+            const messagesContainer = this.$(".messages-container");
+            await true;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+        );
+      });
     });
   }
 
@@ -172,7 +266,7 @@ export default class DatChat extends Component {
     );
 
     this.setState({
-      messages: [].concat(this.state.messages, message)
+      messages: [].concat(this.state.messages, message).sort(sortMessage)
     });
 
     setTimeout(() => {
@@ -193,14 +287,20 @@ export default class DatChat extends Component {
         <h1>#${this.state.channel}</h1>
         ${
           this.state.profileUrl != null
-            ? html`<div><button on-click=${
-                this.handleLogout
-              }>Logout</button></div>`
+            ? html`<div>
+                <button on-click=${this.handleFollow}>Follow someone</button>
+
+                <button on-click=${this.handleLogout}>Logout</button>
+              </div>`
             : html`<button on-click=${
-                this.handleCreateProfile
+                this.handleSelectProfile
               }>Select profile</button>`
         }
       </header>
+
+      <dat-route class="main" path="/profile">
+        <dat-profile archive=${this.state.archive}></dat-profile>
+      </dat-route>
   
       <dat-route class="main" path="/channels/general">
         <div class="messages-container">
@@ -215,4 +315,10 @@ export default class DatChat extends Component {
           }></dat-chat-new-message>`}
       </dat-route>`;
   }
+}
+
+function sortMessage(a, b) {
+  return new Date(a.dateCreated).getTime() < new Date(b.dateCreated).getTime()
+    ? -1
+    : 1;
 }
