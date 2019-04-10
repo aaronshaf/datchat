@@ -66,6 +66,7 @@ export default class Channel extends Component {
       this.updateMessage(path, publicArchive, profile);
     });
 
+    await mkdirp("/follows", publicArchive);
     const followFiles = await publicArchive.readdir("/follows");
     followFiles.forEach(async file => {
       const key = file.split(".json")[0];
