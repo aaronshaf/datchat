@@ -59,12 +59,20 @@ export default class Channel extends Component {
         username: profile && profile.username
       });
     }
+    console.debug({ messages });
     this.setState({ messages: messages.sort(sortMessage) });
 
     const followFiles = await publicArchive.readdir("/follows");
     followFiles.forEach(async file => {
       const key = file.split(".json")[0];
-      const followedArchive = new DatArchive(`dat://${key}`);
+      const followedDatUrl = `dat://${key}`;
+
+      const followedArchive = new DatArchive(followedDatUrl);
+      const followedProfileFile = await followedArchive.readFile(
+        "/profile.json"
+      );
+      const followedProfile = JSON.parse(followedProfileFile);
+
       const history = await followedArchive.history({
         start: 0,
         end: 150,
@@ -83,21 +91,21 @@ export default class Channel extends Component {
         .map(message => message.path);
 
       messagePaths.forEach(async path => {
-        this.updateMessage(path, followedArchive);
+        this.updateMessage(path, followedArchive, followedProfile);
       });
     });
   };
 
-  updateMessage = async (path, followedArchive) => {
+  updateMessage = async (path, followedArchive, profile) => {
     const messageFile = await followedArchive.readFile(path, "utf8");
     if (!messageFile) {
       return;
     }
     const message = JSON.parse(messageFile);
+    message.username = profile.username;
     const id = basename(path);
     message.id = id;
     message.dat_archive = followedArchive.url;
-    console.debug({ message });
 
     this.setState({
       messages: []
