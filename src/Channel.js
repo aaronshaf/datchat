@@ -117,14 +117,21 @@ export default class Channel extends Component {
     message.id = id;
     message.dat_archive = followedArchive.url;
 
-    this.setState({
-      messages: []
-        .concat(
-          this.state.messages.filter(_message => _message.id !== message.id),
-          message
-        )
-        .sort(sortMessage)
-    });
+    this.setState(
+      {
+        messages: []
+          .concat(
+            this.state.messages.filter(_message => _message.id !== message.id),
+            message
+          )
+          .sort(sortMessage)
+      },
+      async () => {
+        const messagesContainer = this.messagesRef;
+        await true;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    );
   };
 
   componentDidMount() {
@@ -169,6 +176,10 @@ export default class Channel extends Component {
     // this.loadMessages();
   };
 
+  setMessagesRef = node => {
+    this.messagesRef = node;
+  };
+
   render() {
     const { publicArchive } = this.props;
     const messages = this.state.messages.map((message, i) => {
@@ -183,7 +194,7 @@ export default class Channel extends Component {
     });
     return (
       <Container>
-        <Messages>{messages}</Messages>
+        <Messages ref={this.setMessagesRef}>{messages}</Messages>
         {publicArchive && (
           <NewMessage>
             <TextInput
