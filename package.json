@@ -6,6 +6,7 @@
     "@emotion/core": "^10.0.10",
     "@emotion/styled": "^10.0.10",
     "@instructure/ui-a11y": "^5.52.1",
+    "@instructure/ui-buttons": "^5.52.1",
     "@instructure/ui-elements": "^5.52.1",
     "@instructure/ui-forms": "^5.52.1",
     "@instructure/ui-layout": "^5.52.1",

@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import { TextInput } from "@instructure/ui-forms";
 import { Text } from "@instructure/ui-elements";
 import styled from "@emotion/styled/macro";
-import { uuidv4, mkdirp, sortMessage } from "./utils.js";
+import { uuidv4, mkdirp, sortMessage, basename } from "./utils.js";
+
+const DatArchive = window.DatArchive;
 
 const Messages = styled.div`
   flex: 1;
@@ -58,6 +60,53 @@ export default class Channel extends Component {
       });
     }
     this.setState({ messages: messages.sort(sortMessage) });
+
+    const followFiles = await publicArchive.readdir("/follows");
+    followFiles.forEach(async file => {
+      const key = file.split(".json")[0];
+      const followedArchive = new DatArchive(`dat://${key}`);
+      const history = await followedArchive.history({
+        start: 0,
+        end: 150,
+        reverse: true
+      });
+
+      const messagePaths = history
+        .filter(message => message.path.startsWith("/messages/"))
+        .filter(message => message.type === "put")
+        .reduce((messages, message) => {
+          return [].concat(
+            messages,
+            messages.includes(message.path) ? [] : message
+          );
+        }, [])
+        .map(message => message.path);
+
+      messagePaths.forEach(async path => {
+        this.updateMessage(path, followedArchive);
+      });
+    });
+  };
+
+  updateMessage = async (path, followedArchive) => {
+    const messageFile = await followedArchive.readFile(path, "utf8");
+    if (!messageFile) {
+      return;
+    }
+    const message = JSON.parse(messageFile);
+    const id = basename(path);
+    message.id = id;
+    message.dat_archive = followedArchive.url;
+    console.debug({ message });
+
+    this.setState({
+      messages: []
+        .concat(
+          this.state.messages.filter(_message => _message.id !== message.id),
+          message
+        )
+        .sort(sortMessage)
+    });
   };
 
   componentDidMount() {

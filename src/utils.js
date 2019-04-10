@@ -33,3 +33,11 @@ export const sortMessage = (a, b) =>
   new Date(a.dateCreated).getTime() < new Date(b.dateCreated).getTime()
     ? 1
     : -1;
+
+function stripExtension(str) {
+  return str.substr(0, str.lastIndexOf("."));
+}
+
+export const basename = path => {
+  return stripExtension(path.split("/").reverse()[0]);
+};

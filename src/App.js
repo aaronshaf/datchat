@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import Profile from "./Profile.js";
 import styled from "@emotion/styled/macro";
-import { Avatar } from "@instructure/ui-elements";
-import { Button } from "@instructure/ui-buttons";
 import { ScreenReaderContent } from "@instructure/ui-a11y";
 import IconAddressBook from "@instructure/ui-icons/lib/Line/IconAddressBook";
-import IconUser from "@instructure/ui-icons/lib/Line/IconUser";
+import IconChat from "@instructure/ui-icons/lib/Line/IconChat";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Link } from "@instructure/ui-elements";
 import NavLink from "./NavLink.js";
@@ -20,6 +18,10 @@ const Container = styled.div`
   left: 0;
   display: flex;
   flex-direction: column;
+`;
+
+const Nav = styled.nav`
+  padding: 12px;
 `;
 
 class App extends Component {
@@ -46,17 +48,26 @@ class App extends Component {
       <Router>
         <Container>
           <header>
-            {this.state.profile && <IconUser size="medium" />}
-            <Profile onProfileChange={this.onProfileChange} />
-            <Link
-              to="/following"
-              as={NavLink}
-              onClick={() => console.log("clicked!")}
-              icon={<IconAddressBook size="medium" />}
-            >
-              <ScreenReaderContent>Descriptive text</ScreenReaderContent>
-            </Link>
+            <Nav>
+              <Link to="/" as={NavLink} icon={<IconChat size="small" />}>
+                Chat
+                <ScreenReaderContent>Chat</ScreenReaderContent>
+              </Link>
+              <Link
+                to="/following"
+                as={NavLink}
+                icon={<IconAddressBook size="small" />}
+              >
+                Following
+              </Link>
+            </Nav>
           </header>
+          <Profile
+            onProfileChange={this.onProfileChange}
+            profile={this.state.profile}
+            publicArchive={this.state.publicArchive}
+            privateArchive={this.state.privateArchive}
+          />
           <Route
             exact
             path="/"
