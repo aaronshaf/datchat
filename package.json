@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/core": "^10.0.10",
     "@emotion/styled": "^10.0.10",
+    "@instructure/ui-a11y": "^5.52.1",
     "@instructure/ui-elements": "^5.52.1",
     "@instructure/ui-forms": "^5.52.1",
     "@instructure/ui-layout": "^5.52.1",
@@ -12,6 +13,7 @@
     "emotion": "^10.0.9",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8"
   },
   "scripts": {

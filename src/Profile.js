@@ -23,7 +23,6 @@ export default class Profile extends Component {
       const privateArchive = await DatArchive.load(
         localStorage.privateArchiveUrl
       );
-      console.debug({ publicArchive, privateArchive });
       this.setState({ publicArchive, privateArchive, isLoggedIn: true }, () =>
         this.props.onProfileChange(privateArchive, publicArchive)
       );

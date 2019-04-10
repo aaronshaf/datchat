@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { TextInput } from "@instructure/ui-forms";
 import { Text } from "@instructure/ui-elements";
 import styled from "@emotion/styled/macro";
-import { Avatar } from "@instructure/ui-elements";
 import { uuidv4, mkdirp, sortMessage } from "./utils.js";
 
 const Messages = styled.div`
@@ -46,7 +45,6 @@ export default class Channel extends Component {
 
   loadMessages = async () => {
     const { publicArchive, profile } = this.props;
-    console.debug(this.props);
     await mkdirp("/messages", publicArchive);
     const messageFiles = await publicArchive.readdir("/messages");
     const messages = [];
