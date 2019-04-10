@@ -59,7 +59,6 @@ export default class Channel extends Component {
         username: profile && profile.username
       });
     }
-    console.debug({ messages });
     this.setState({ messages: messages.sort(sortMessage) });
 
     const followFiles = await publicArchive.readdir("/follows");
@@ -108,12 +107,10 @@ export default class Channel extends Component {
     message.dat_archive = followedArchive.url;
 
     this.setState({
-      messages: []
-        .concat(
-          this.state.messages.filter(_message => _message.id !== message.id),
-          message
-        )
-        .sort(sortMessage)
+      messages: [].concat(
+        this.state.messages.filter(_message => _message.id !== message.id),
+        message
+      )
     });
   };
 
@@ -161,7 +158,7 @@ export default class Channel extends Component {
 
   render() {
     const { publicArchive } = this.props;
-    const messages = this.state.messages.map((message, i) => {
+    const messages = this.state.messages.sort(sortMessage).map((message, i) => {
       return (
         <Message key={i}>
           <Text size="small">

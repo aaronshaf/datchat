@@ -30,9 +30,9 @@ export const mkdirp = async (path, archive) => {
 };
 
 export const sortMessage = (a, b) =>
-  new Date(a.dateCreated).getTime() < new Date(b.dateCreated).getTime()
-    ? 1
-    : -1;
+  new Date(a.date_created).getTime() < new Date(b.date_created).getTime()
+    ? -1
+    : 1;
 
 function stripExtension(str) {
   return str.substr(0, str.lastIndexOf("."));
