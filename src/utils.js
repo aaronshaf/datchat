@@ -41,3 +41,25 @@ function stripExtension(str) {
 export const basename = path => {
   return stripExtension(path.split("/").reverse()[0]);
 };
+
+// http://gka.github.io/chroma.js/
+export const userColors = [
+  "#6bcc86",
+  "#008589",
+  "#007b84",
+  "#56c28a",
+  "#aee678",
+  "#2eaf8f",
+  "#c7ed73",
+  "#97dd7d",
+  "#42b98d",
+  "#81d581",
+  "#18a48f",
+  "#009a8f",
+  "#00908d",
+  "#0c707d",
+  "#196676",
+  "#215c6d",
+  "#275263",
+  "#2a4858"
+];

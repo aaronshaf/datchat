@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { TextInput } from "@instructure/ui-forms";
-import { Text } from "@instructure/ui-elements";
 import styled from "@emotion/styled/macro";
 import { uuidv4, mkdirp, sortMessage, basename } from "./utils.js";
+import Message from "./Message.js";
 
 const DatArchive = window.DatArchive;
 
@@ -10,20 +10,6 @@ const Messages = styled.div`
   flex: 1;
   overflow: auto;
   padding: 16px 0;
-`;
-
-const MessageContent = styled.span``;
-
-const Username = styled.span`
-  margin-right: 12px;
-  font-weight: 700;
-`;
-
-const Message = styled.div`
-  &:hover {
-    background-color: #f8f8f8;
-  }
-  padding: 4px 20px;
 `;
 
 const NewMessage = styled.div`
@@ -55,7 +41,7 @@ export default class Channel extends Component {
       const message = JSON.parse(fileContents);
       messages.push({
         ...message,
-        user_archive: publicArchive.url,
+        dat_archive: publicArchive.url,
         username: profile && profile.username
       });
     }
@@ -183,14 +169,7 @@ export default class Channel extends Component {
   render() {
     const { publicArchive } = this.props;
     const messages = this.state.messages.map((message, i) => {
-      return (
-        <Message key={i}>
-          <Text size="small">
-            <Username>{message.username}</Username>
-            <MessageContent>{message.text || " "}</MessageContent>
-          </Text>
-        </Message>
-      );
+      return <Message key={i} data={message} />;
     });
     return (
       <Container>

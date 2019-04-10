@@ -16,7 +16,6 @@ export default class Following extends Component {
 
   handleSubmit = async event => {
     event.preventDefault();
-    console.debug(this.inputRef.value);
 
     const datKey = await DatArchive.resolveName(this.inputRef.value);
 
