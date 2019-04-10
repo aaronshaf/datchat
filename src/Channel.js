@@ -61,6 +61,11 @@ export default class Channel extends Component {
     }
     this.setState({ messages: messages.sort(sortMessage) });
 
+    const events = publicArchive.watch("/messages/*.json");
+    events.addEventListener("invalidated", ({ path }) => {
+      this.updateMessage(path, publicArchive, profile);
+    });
+
     const followFiles = await publicArchive.readdir("/follows");
     followFiles.forEach(async file => {
       const key = file.split(".json")[0];
@@ -92,6 +97,11 @@ export default class Channel extends Component {
       messagePaths.forEach(async path => {
         this.updateMessage(path, followedArchive, followedProfile);
       });
+
+      const events = followedArchive.watch("/messages/*.json");
+      events.addEventListener("invalidated", ({ path }) => {
+        this.updateMessage(path, followedArchive, followedProfile);
+      });
     });
   };
 
@@ -107,10 +117,12 @@ export default class Channel extends Component {
     message.dat_archive = followedArchive.url;
 
     this.setState({
-      messages: [].concat(
-        this.state.messages.filter(_message => _message.id !== message.id),
-        message
-      )
+      messages: []
+        .concat(
+          this.state.messages.filter(_message => _message.id !== message.id),
+          message
+        )
+        .sort(sortMessage)
     });
   };
 
@@ -153,12 +165,12 @@ export default class Channel extends Component {
       `messages/${id}.json`,
       JSON.stringify(message, null, 2)
     );
-    this.loadMessages();
+    // this.loadMessages();
   };
 
   render() {
     const { publicArchive } = this.props;
-    const messages = this.state.messages.sort(sortMessage).map((message, i) => {
+    const messages = this.state.messages.map((message, i) => {
       return (
         <Message key={i}>
           <Text size="small">
