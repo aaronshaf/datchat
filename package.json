@@ -1,11 +1,32 @@
 {
-  "devDependencies": {
-    "eslint": "^5.2.0",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.13.0",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "prettier": "^1.14.0"
-  }
+  "name": "dat-chat3",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/core": "^10.0.10",
+    "@emotion/styled": "^10.0.10",
+    "@instructure/ui-elements": "^5.52.1",
+    "@instructure/ui-forms": "^5.52.1",
+    "@instructure/ui-layout": "^5.52.1",
+    "@instructure/ui-themes": "^5.52.1",
+    "emotion": "^10.0.9",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "2.1.8"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
