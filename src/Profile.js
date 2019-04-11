@@ -100,6 +100,12 @@ export default class Profile extends Component {
     const isLoggedIn = this.state.isLoggedIn;
     return (
       <>
+        {this.props.profile && (
+          <Button variant="link" margin="0 small">
+            {this.props.profile.username}
+          </Button>
+        )}
+
         {isLoggedIn === true && (
           <Button variant="ghost" onClick={this.handleLogout}>
             Log out
