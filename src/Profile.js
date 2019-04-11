@@ -7,7 +7,7 @@ export default class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoggedIn: false,
+      isLoggedIn: null,
       privateArchive: null,
       publicArchive: null
     };
@@ -27,6 +27,8 @@ export default class Profile extends Component {
       this.setState({ publicArchive, privateArchive, isLoggedIn: true }, () =>
         this.props.onProfileChange(privateArchive, publicArchive)
       );
+    } else {
+      this.setState({ isLoggedIn: false });
     }
   }
 
@@ -92,9 +94,11 @@ export default class Profile extends Component {
     const isLoggedIn = this.state.isLoggedIn;
     return (
       <>
-        {isLoggedIn ? (
+        {isLoggedIn === true && (
           <Button onClick={this.handleLogout}>Log out</Button>
-        ) : (
+        )}
+
+        {isLoggedIn === false && (
           <>
             <Button
               variant="ghost"
