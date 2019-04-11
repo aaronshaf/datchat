@@ -3,6 +3,7 @@ import { Button } from "@instructure/ui-buttons";
 import IconAdd from "@instructure/ui-icons/lib/Solid/IconAdd";
 import { TextInput } from "@instructure/ui-forms";
 import { Heading } from "@instructure/ui-elements";
+import { Text } from "@instructure/ui-elements";
 import { mkdirp } from "./utils.js";
 
 const DatArchive = window.DatArchive;
@@ -80,8 +81,10 @@ export default class Following extends Component {
     const follows = this.state.follows.map((follow, i) => {
       return (
         <li key={i}>
-          {follow.username} ({follow.dat_key}){" "}
-          <button onClick={this.handleUnfollow}>Remove</button>
+          <Text>
+            {follow.username} ({follow.dat_key})
+            <button onClick={this.handleUnfollow}>Remove</button>
+          </Text>
         </li>
       );
     });
@@ -92,7 +95,7 @@ export default class Following extends Component {
             <Heading level="h2" margin="0 0 small 0">
               Your public Dat URL
             </Heading>
-            <div>{this.props.publicArchive.url}</div>
+            <Text size="small">{this.props.publicArchive.url}</Text>
           </>
         )}
 
