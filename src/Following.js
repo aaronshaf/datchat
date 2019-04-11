@@ -116,7 +116,11 @@ export default class Following extends Component {
         <li key={i}>
           <Text>
             {follow.username} ({follow.dat_archive}){" "}
-            <button onClick={event => this.follow(follow.dat_archive)}>
+            <button
+              onClick={event =>
+                this.follow(follow.dat_archive.split("dat://")[1])
+              }
+            >
               Follow
             </button>
           </Text>
