@@ -176,6 +176,13 @@ export default class Following extends Component {
             <ul>{suggestedFollows}</ul>
           </>
         )}
+        <Heading level="h2" margin="medium 0 small 0">
+          Reminder
+        </Heading>
+        <Text>
+          If someone isn't following you they won't see your messages. Send them
+          your Dat URL.
+        </Text>
       </div>
     );
   }
