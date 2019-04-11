@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Button } from "@instructure/ui-buttons";
 import IconAdd from "@instructure/ui-icons/lib/Solid/IconAdd";
 import { TextInput } from "@instructure/ui-forms";
+import { Heading } from "@instructure/ui-elements";
 import { mkdirp } from "./utils.js";
 
 const DatArchive = window.DatArchive;
@@ -14,9 +15,13 @@ export default class Following extends Component {
     };
   }
 
-  handleSubmit = async event => {
+  handleUnfollow = async event => {
     event.preventDefault();
+    // await this.props.publicArchive.writeFile(`follows/${datKey}.json`);
+  };
 
+  handleFollow = async event => {
+    event.preventDefault();
     const datKey = await DatArchive.resolveName(this.inputRef.value);
 
     if (!datKey) {
@@ -24,7 +29,6 @@ export default class Following extends Component {
     }
 
     const followedDatUrl = `dat://${datKey}`;
-
     const followedArchive = new DatArchive(followedDatUrl);
     const followedProfileFile = await followedArchive.readFile("/profile.json");
     const followedProfile = JSON.parse(followedProfileFile);
@@ -76,7 +80,8 @@ export default class Following extends Component {
     const follows = this.state.follows.map((follow, i) => {
       return (
         <li key={i}>
-          {follow.username} ({follow.dat_key})
+          {follow.username} ({follow.dat_key}){" "}
+          <button onClick={this.handleUnfollow}>Remove</button>
         </li>
       );
     });
@@ -84,20 +89,26 @@ export default class Following extends Component {
       <div style={{ margin: "20px" }}>
         {this.props.publicArchive && (
           <>
-            <h2>Your public Dat URL</h2>
+            <Heading level="h2" margin="0 0 small 0">
+              Your public Dat URL
+            </Heading>
             <div>{this.props.publicArchive.url}</div>
           </>
         )}
 
-        <h2>Follow someone else</h2>
-        <form onSubmit={this.handleSubmit}>
+        <Heading level="h2" margin="medium 0 small 0">
+          Follow someone else
+        </Heading>
+        <form onSubmit={this.handleFollow}>
           <TextInput ref={this.setInputRef} label="Paste their Dat URL" />
           <Button type="submit" margin="x-small x-small 0 0" icon={IconAdd}>
             Add
           </Button>
         </form>
 
-        <h2>You are following</h2>
+        <Heading level="h2" margin="medium 0 0 0">
+          You are following
+        </Heading>
         <ul>{follows}</ul>
       </div>
     );
