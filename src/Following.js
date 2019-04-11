@@ -71,10 +71,17 @@ export default class Following extends Component {
       const otherFollows = await loadFollows(followedArchive);
       for (const otherFollow of otherFollows) {
         const isSelf = otherFollow.dat_archive === this.props.publicArchive.url;
+        const isAlreadyFollowed = this.state.follows.some(
+          ({ dat_archive }) => dat_archive === otherFollow.dat_archive
+        );
         const isAlreadySuggested = suggestedFollows.some(
           ({ dat_archive }) => dat_archive === otherFollow.dat_archive
         );
-        if (isSelf === false && isAlreadySuggested === false) {
+        if (
+          isSelf === false &&
+          isAlreadySuggested === false &&
+          isAlreadyFollowed === false
+        ) {
           suggestedFollows.push(otherFollow);
         }
       }
