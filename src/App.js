@@ -73,7 +73,7 @@ class App extends Component {
               <Start>
                 <NavLinkContainer>
                   <Link to="/" as={NavLink}>
-                    Channels
+                    Chat
                   </Link>
                 </NavLinkContainer>
                 {this.state.publicArchive && (

@@ -81,13 +81,23 @@ export default class Following extends Component {
       );
     });
     return (
-      <div>
+      <div style={{ margin: "20px" }}>
+        {this.props.publicArchive && (
+          <>
+            <h2>Your public Dat URL</h2>
+            <div>{this.props.publicArchive.url}</div>
+          </>
+        )}
+
+        <h2>Follow someone else</h2>
         <form onSubmit={this.handleSubmit}>
-          <TextInput ref={this.setInputRef} label="Paste Dat URL" />
-          <Button type="submit" margin="0 x-small 0 0" icon={IconAdd}>
+          <TextInput ref={this.setInputRef} label="Paste their Dat URL" />
+          <Button type="submit" margin="x-small x-small 0 0" icon={IconAdd}>
             Add
           </Button>
         </form>
+
+        <h2>You are following</h2>
         <ul>{follows}</ul>
       </div>
     );
