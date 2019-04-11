@@ -13,6 +13,12 @@ export default class Profile extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.publicArchive == null && this.props.publicArchive != null) {
+      this.setState({ isLoggedIn: true });
+    }
+  }
+
   async componentDidMount() {
     if (
       localStorage.publicArchiveUrl != null &&
@@ -95,7 +101,9 @@ export default class Profile extends Component {
     return (
       <>
         {isLoggedIn === true && (
-          <Button onClick={this.handleLogout}>Log out</Button>
+          <Button variant="ghost" onClick={this.handleLogout}>
+            Log out
+          </Button>
         )}
 
         {isLoggedIn === false && (
