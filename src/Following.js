@@ -111,7 +111,17 @@ export default class Following extends Component {
       );
     });
 
-    const suggestedFollows = this.state.suggestedFollows.map((follow, i) => {
+    const _suggestedFollows =
+      this.state.follows.length > 0
+        ? this.state.suggestedFollows
+        : [
+            {
+              username: "aaronshaf",
+              dat_archive:
+                "dat://4ce870cd06a4701293bf04c79c1071160f0e79cddd1fad7b864b087397992b51"
+            }
+          ];
+    const suggestedFollows = _suggestedFollows.map((follow, i) => {
       return (
         <li key={i}>
           <Text>
