@@ -16,9 +16,10 @@ export default class Following extends Component {
     };
   }
 
-  handleUnfollow = async event => {
+  handleUnfollow = async (event, datKey) => {
     event.preventDefault();
-    // await this.props.publicArchive.writeFile(`follows/${datKey}.json`);
+    await this.props.publicArchive.unlink(`follows/${datKey}.json`);
+    this.loadFollows();
   };
 
   handleFollow = async event => {
@@ -42,6 +43,7 @@ export default class Following extends Component {
       `follows/${datKey}.json`,
       JSON.stringify(follow, null, 2)
     );
+    this.loadFollows();
   };
 
   setInputRef = node => {
@@ -82,8 +84,12 @@ export default class Following extends Component {
       return (
         <li key={i}>
           <Text>
-            {follow.username} ({follow.dat_key})
-            <button onClick={this.handleUnfollow}>Remove</button>
+            {follow.username} (dat://{follow.dat_key})
+            <button
+              onClick={event => this.handleUnfollow(event, follow.dat_key)}
+            >
+              Remove
+            </button>
           </Text>
         </li>
       );
