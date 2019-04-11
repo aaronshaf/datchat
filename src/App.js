@@ -32,6 +32,8 @@ const Nav = styled.nav`
   padding: 12px;
   display: flex;
   border-bottom: 1px solid #eee;
+  min-height: 63px;
+  box-sizing: border-box;
 `;
 
 const NavLinkContainer = styled.div`
