@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import Profile from "./Profile.js";
 import styled from "@emotion/styled/macro";
-import { ScreenReaderContent } from "@instructure/ui-a11y";
-import IconAddressBook from "@instructure/ui-icons/lib/Line/IconAddressBook";
-import IconChat from "@instructure/ui-icons/lib/Line/IconChat";
+// import IconAddressBook from "@instructure/ui-icons/lib/Line/IconAddressBook";
+// import IconChat from "@instructure/ui-icons/lib/Line/IconChat";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Link } from "@instructure/ui-elements";
 import NavLink from "./NavLink.js";
@@ -20,8 +19,26 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
+const Start = styled.div`
+  flex: 1;
+  display: flex;
+`;
+
+const End = styled.div`
+  display: flex;
+`;
+
 const Nav = styled.nav`
   padding: 12px;
+  display: flex;
+  border-bottom: 1px solid #eee;
+`;
+
+const NavLinkContainer = styled.div`
+  margin-left: 12px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
 `;
 
 class App extends Component {
@@ -34,13 +51,17 @@ class App extends Component {
     };
   }
 
-  onProfileChange = (privateArchive, publicArchive) => {
-    this.setState({ privateArchive, publicArchive }, async () => {
-      const profile = JSON.parse(
-        await this.state.publicArchive.readFile("/profile.json")
-      );
-      this.setState({ profile });
-    });
+  onProfileChange = async (privateArchive, publicArchive) => {
+    this.setState(
+      {
+        privateArchive,
+        publicArchive,
+        profile: publicArchive
+          ? JSON.parse(await publicArchive.readFile("/profile.json"))
+          : null
+      },
+      async () => {}
+    );
   };
 
   render() {
@@ -49,25 +70,31 @@ class App extends Component {
         <Container>
           <header>
             <Nav>
-              <Link to="/" as={NavLink} icon={<IconChat size="small" />}>
-                Chat
-                <ScreenReaderContent>Chat</ScreenReaderContent>
-              </Link>
-              <Link
-                to="/following"
-                as={NavLink}
-                icon={<IconAddressBook size="small" />}
-              >
-                Following
-              </Link>
+              <Start>
+                <NavLinkContainer>
+                  <Link to="/" as={NavLink}>
+                    Channels
+                  </Link>
+                </NavLinkContainer>
+                {this.state.publicArchive && (
+                  <NavLinkContainer>
+                    <Link to="/following" as={NavLink}>
+                      Following
+                    </Link>
+                  </NavLinkContainer>
+                )}
+              </Start>
+
+              <End>
+                <Profile
+                  onProfileChange={this.onProfileChange}
+                  profile={this.state.profile}
+                  publicArchive={this.state.publicArchive}
+                  privateArchive={this.state.privateArchive}
+                />
+              </End>
             </Nav>
           </header>
-          <Profile
-            onProfileChange={this.onProfileChange}
-            profile={this.state.profile}
-            publicArchive={this.state.publicArchive}
-            privateArchive={this.state.privateArchive}
-          />
           <Route
             exact
             path="/"

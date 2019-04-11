@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Button } from "@instructure/ui-buttons";
 
 const DatArchive = window.DatArchive;
 
@@ -32,12 +33,16 @@ export default class Profile extends Component {
   handleLogout = () => {
     this.setState(
       { publicArchive: null, privateArchive: null, isLoggedIn: false },
-      () => this.props.onProfileChange(null)
+      () => {
+        this.props.onProfileChange(null);
+        localStorage.clear();
+      }
     );
   };
 
-  handleLogin = async () => {
+  handleCreateProfile = async () => {
     const username = window.prompt("Username?");
+    if (username == null) return;
     const privateArchive = await DatArchive.create({
       title: `Private DatChat: ${username}`,
       description: "Private archive for DatChat",
@@ -69,16 +74,41 @@ export default class Profile extends Component {
     this.props.onProfileChange(privateArchive, publicArchive);
   };
 
+  handleLoadProfile = async () => {
+    const publicArchive = await DatArchive.selectArchive({
+      prompt: "Select a public DatChat profile",
+      filters: { isOwner: true, type: ["datchat-public"] }
+    });
+    const privateArchive = await DatArchive.selectArchive({
+      prompt: "Select a private DatChat profile",
+      filters: { isOwner: true, type: ["datchat-private"] }
+    });
+    localStorage.privateArchiveUrl = privateArchive.url;
+    localStorage.publicArchiveUrl = publicArchive.url;
+    this.props.onProfileChange(privateArchive, publicArchive);
+  };
+
   render() {
     const isLoggedIn = this.state.isLoggedIn;
     return (
-      <div>
+      <>
         {isLoggedIn ? (
-          <button onClick={this.handleLogout}>Log out</button>
+          <Button onClick={this.handleLogout}>Log out</Button>
         ) : (
-          <button onClick={this.handleLogin}>Log in</button>
+          <>
+            <Button
+              variant="ghost"
+              onClick={this.handleCreateProfile}
+              margin="0 small"
+            >
+              Create profile
+            </Button>
+            <Button variant="ghost" onClick={this.handleLoadProfile}>
+              Load profile
+            </Button>
+          </>
         )}
-      </div>
+      </>
     );
   }
 }
