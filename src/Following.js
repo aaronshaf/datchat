@@ -4,7 +4,7 @@ import IconAdd from "@instructure/ui-icons/lib/Solid/IconAdd";
 import { TextInput } from "@instructure/ui-forms";
 import { Heading } from "@instructure/ui-elements";
 import { Text } from "@instructure/ui-elements";
-import { mkdirp } from "./utils.js";
+import { mkdirp, loadFollows } from "./utils.js";
 
 const DatArchive = window.DatArchive;
 
@@ -12,29 +12,24 @@ export default class Following extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      follows: []
+      follows: [],
+      suggestedFollows: []
     };
   }
 
   handleUnfollow = async (event, datKey) => {
     event.preventDefault();
-    await this.props.publicArchive.unlink(`follows/${datKey}.json`);
+    await this.props.publicArchive.unlink(
+      `follows/${datKey.split("dat://")[1]}.json`
+    );
     this.loadFollows();
   };
 
-  handleFollow = async event => {
-    event.preventDefault();
-    const datKey = await DatArchive.resolveName(this.inputRef.value);
-
-    if (!datKey) {
-      return;
-    }
-
+  follow = async datKey => {
     const followedDatUrl = `dat://${datKey}`;
     const followedArchive = new DatArchive(followedDatUrl);
     const followedProfileFile = await followedArchive.readFile("/profile.json");
     const followedProfile = JSON.parse(followedProfileFile);
-
     await mkdirp("/follows", this.props.publicArchive);
     const follow = {
       username: followedProfile.username
@@ -46,24 +41,45 @@ export default class Following extends Component {
     this.loadFollows();
   };
 
+  handleFollowSubmit = async event => {
+    event.preventDefault();
+    if (this.inputRef.value.length === 0) {
+      return false;
+    }
+    const datKey = await DatArchive.resolveName(this.inputRef.value);
+    if (!datKey) {
+      return;
+    }
+    this.follow(datKey);
+    this.inputRef.value = "";
+  };
+
   setInputRef = node => {
     this.inputRef = node;
   };
 
   loadFollows = async () => {
     const { publicArchive } = this.props;
-    await mkdirp("/follows", publicArchive);
-    const followFiles = await publicArchive.readdir("/follows");
-    let follows = [];
-    for (const filename of followFiles) {
-      const fileContents = await publicArchive.readFile(`/follows/${filename}`);
-      const follow = {
-        ...JSON.parse(fileContents),
-        dat_key: filename.split(".json")[0]
-      };
-      follows.push(follow);
+    const follows = await loadFollows(publicArchive);
+    this.setState({ follows }, this.loadSuggestions);
+  };
+
+  loadSuggestions = async () => {
+    const suggestedFollows = [];
+    for (const follow of this.state.follows) {
+      const followedArchive = new DatArchive(follow.dat_archive);
+      const otherFollows = await loadFollows(followedArchive);
+      for (const otherFollow of otherFollows) {
+        const isSelf = otherFollow.dat_archive === this.props.publicArchive.url;
+        const isAlreadySuggested = suggestedFollows.some(
+          ({ dat_archive }) => dat_archive === otherFollow.dat_archive
+        );
+        if (isSelf === false && isAlreadySuggested === false) {
+          suggestedFollows.push(otherFollow);
+        }
+      }
     }
-    this.setState({ follows });
+    this.setState({ suggestedFollows });
   };
 
   componentDidMount() {
@@ -84,9 +100,9 @@ export default class Following extends Component {
       return (
         <li key={i}>
           <Text>
-            {follow.username} (dat://{follow.dat_key})
+            {follow.username} ({follow.dat_archive})
             <button
-              onClick={event => this.handleUnfollow(event, follow.dat_key)}
+              onClick={event => this.handleUnfollow(event, follow.dat_archive)}
             >
               Remove
             </button>
@@ -94,6 +110,20 @@ export default class Following extends Component {
         </li>
       );
     });
+
+    const suggestedFollows = this.state.suggestedFollows.map((follow, i) => {
+      return (
+        <li key={i}>
+          <Text>
+            {follow.username} ({follow.dat_archive})
+            <button onClick={event => this.follow(follow.dat_archive)}>
+              Remove
+            </button>
+          </Text>
+        </li>
+      );
+    });
+
     return (
       <div style={{ margin: "20px" }}>
         {this.props.publicArchive && (
@@ -108,17 +138,30 @@ export default class Following extends Component {
         <Heading level="h2" margin="medium 0 small 0">
           Follow someone else
         </Heading>
-        <form onSubmit={this.handleFollow}>
-          <TextInput ref={this.setInputRef} label="Paste their Dat URL" />
+        <form onSubmit={this.handleFollowSubmit}>
+          <TextInput inputRef={this.setInputRef} label="Paste their Dat URL" />
           <Button type="submit" margin="x-small x-small 0 0" icon={IconAdd}>
             Add
           </Button>
         </form>
 
-        <Heading level="h2" margin="medium 0 0 0">
-          You are following
-        </Heading>
-        <ul>{follows}</ul>
+        {follows.length > 0 && (
+          <>
+            <Heading level="h2" margin="medium 0 0 0">
+              You are following
+            </Heading>
+            <ul>{follows}</ul>
+          </>
+        )}
+
+        {suggestedFollows.length > 0 && (
+          <>
+            <Heading level="h2" margin="medium 0 0 0">
+              Suggested
+            </Heading>
+            <ul>{suggestedFollows}</ul>
+          </>
+        )}
       </div>
     );
   }

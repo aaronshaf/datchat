@@ -57,19 +57,16 @@ export default class Channel extends Component {
     followFiles.forEach(async file => {
       const key = file.split(".json")[0];
       const followedDatUrl = `dat://${key}`;
-
       const followedArchive = new DatArchive(followedDatUrl);
       const followedProfileFile = await followedArchive.readFile(
         "/profile.json"
       );
       const followedProfile = JSON.parse(followedProfileFile);
-
       const history = await followedArchive.history({
         start: 0,
         end: 150,
         reverse: true
       });
-
       const messagePaths = history
         .filter(message => message.path.startsWith("/messages/"))
         .filter(message => message.type === "put")
@@ -80,7 +77,6 @@ export default class Channel extends Component {
           );
         }, [])
         .map(message => message.path);
-
       messagePaths.forEach(async path => {
         this.updateMessage(path, followedArchive, followedProfile);
       });

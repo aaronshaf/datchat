@@ -63,3 +63,20 @@ export const userColors = [
   "#275263",
   "#2a4858"
 ];
+
+export const loadFollows = async archive => {
+  let followFiles = [];
+  try {
+    followFiles = await archive.readdir("/follows");
+  } catch (err) {}
+  let follows = [];
+  for (const filename of followFiles) {
+    const fileContents = await archive.readFile(`/follows/${filename}`);
+    const follow = {
+      ...JSON.parse(fileContents),
+      dat_archive: `dat://${filename.split(".json")[0]}`
+    };
+    follows.push(follow);
+  }
+  return follows;
+};

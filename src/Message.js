@@ -22,7 +22,6 @@ const MessageContent = styled.span``;
 export default class Message extends Component {
   updateSeenUsers() {
     const url = this.props.data.dat_archive;
-
     if (usersSeen.includes(url) === false) {
       usersSeen.push(url);
     }
