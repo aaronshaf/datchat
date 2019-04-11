@@ -100,7 +100,7 @@ export default class Following extends Component {
       return (
         <li key={i}>
           <Text>
-            {follow.username} ({follow.dat_archive})
+            {follow.username} ({follow.dat_archive}){" "}
             <button
               onClick={event => this.handleUnfollow(event, follow.dat_archive)}
             >
@@ -115,9 +115,9 @@ export default class Following extends Component {
       return (
         <li key={i}>
           <Text>
-            {follow.username} ({follow.dat_archive})
+            {follow.username} ({follow.dat_archive}){" "}
             <button onClick={event => this.follow(follow.dat_archive)}>
-              Remove
+              Follow
             </button>
           </Text>
         </li>

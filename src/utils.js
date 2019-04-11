@@ -24,7 +24,9 @@ export const mkdirp = async (path, archive) => {
         throw new Error(`${partialPath} is not a directory`);
       }
     } catch (err) {
-      await archive.mkdir(partialPath);
+      if (archive != null) {
+        await archive.mkdir(partialPath);
+      }
     }
   }
 };
